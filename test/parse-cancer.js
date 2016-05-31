@@ -36,7 +36,7 @@ describe('RIS parser - test #1', function() {
 		expect(sample).to.have.property('authors');
 		expect(sample.authors).to.deep.equal(['Lin, Xiaodong', 'Chen, Xiaoyi', 'Jiru, Yuan', 'Du, Jialin', 'Zhao, Gang', 'Wu, Zeyu']);
 		expect(sample).to.have.property('date', '2016 May 25');
-		//expect(sample).to.have.property('type', 'journalArticle');
+		expect(sample).to.have.property('type', 'journalArticle');
 		expect(sample).to.have.property('language', 'ENG');
 		expect(sample).to.have.property('abstract');
 		expect(sample.abstract).to.match(/^OBJECTIVE: The purpose of this study/);
