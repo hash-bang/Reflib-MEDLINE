@@ -33,7 +33,7 @@ var _fieldTranslationsReverse = _(_fieldTranslations) // Calculate the key/val l
 var _typeTranslations = {
 	'CASE REPORTS': 'case',
 	'CLASSICAL ARTICLE': 'classicalWork',
-	'DICTIONARY': 'dctionary',
+	'DICTIONARY': 'dictionary',
 	'JOURNAL ARTICLE': 'journalArticle',
 	'LEGAL CASES': 'legalRuleOrRegulation',
 	'LEGISLATION': 'legalRuleOrRegulation',
@@ -43,6 +43,17 @@ var _typeTranslations = {
 	'VIDEO-AUDIO MEDIA': 'filmOrBroadcast',
 	'WEBCASTS': 'web',
 };
+var _typeTranslationsReverse = _(_typeTranslations)
+	.mapValues(function(trans, id) {
+		return {reflib: trans, medline: id};
+	})
+	.mapKeys(function(trans) {
+		return trans.reflib;
+	})
+	.mapValues(function(trans) {
+		return trans.medline;
+	})
+	.value();
 
 function parse(content) {
 	var emitter = new events.EventEmitter();
@@ -72,7 +83,7 @@ function parse(content) {
 				ref[refField.reflib] += ' ' + line.substr(6);
 			} else if (!line) {
 				if (!_.isEmpty(ref)) {
-					if (!_.isEmpty(ref.type)) ref.type = _typeTranslations[ref.type] ? _typeTranslations[ref.type] : 'unknown';
+					ref.type = ref.type && _typeTranslations[ref.type] ? _typeTranslations[ref.type] : 'unknown';
 					emitter.emit('ref', ref);
 				}
 				ref = {};
@@ -86,7 +97,7 @@ function parse(content) {
 
 function _pusher(stream, isLast, child, settings) {
 	var buffer = '';
-	if (!child.type) child.type = settings.defaultType;
+	if (child.type) child.type = _typeTranslationsReverse[child.type] || settings.defaultType;
 
 	_(child)
 		.omitBy(function(data, key) {
@@ -102,13 +113,14 @@ function _pusher(stream, isLast, child, settings) {
 				buffer += field.medline + '- ' + data + '\n';
 			}
 		})
+
 	stream.write(buffer + (isLast ? '' : '\n\n'));
 };
 
 function output(options) {
 	var settings = _.defaults(options, {
 		stream: null,
-		defaultType: 'report', // Assume this reference type if we are not provided with one
+		defaultType: 'journalArticle', // Assume this reference type if we are not provided with one
 		content: [],
 	});
 	async()

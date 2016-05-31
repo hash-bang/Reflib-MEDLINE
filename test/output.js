@@ -6,7 +6,7 @@ var stream = require('stream');
 describe('MEDLINE output - array input', function() {
 	var refs = [
 		{title: 'Hello World', authors: ['Joe Random', 'John Random'], volume: 1},
-		{title: 'Goodbye World', authors: ['Josh Random', 'Janet Random'], volume: 2},
+		{title: 'Goodbye World', authors: ['Josh Random', 'Janet Random'], volume: 2, type: 'journalArticle'},
 	];
 
 	var output, rlOutput, rlErr;
@@ -64,14 +64,14 @@ describe('MEDLINE output - array input', function() {
 		expect(_.find(rlOutput, {title: 'Hello World'})).to.deep.equal({
 			title: 'Hello World',
 			authors: ['Joe Random', 'John Random'],
-			type: 'report',
+			type: 'unknown',
 			volume: '1',
 		});
 
 		expect(_.find(rlOutput, {title: 'Goodbye World'})).to.deep.equal({
 			title: 'Goodbye World',
 			authors: ['Josh Random', 'Janet Random'],
-			type: 'report',
+			type: 'journalArticle',
 			volume: '2',
 		});
 	});
@@ -81,7 +81,7 @@ describe('MEDLINE output - array input', function() {
 describe('MEDLINE output - objects via callback', function() {
 	var refs = [
 		{id: 'ref01', title: 'Hello World', authors: ['Joe Random', 'John Random'], volume: 1},
-		{id: 'ref02', title: 'Goodbye World', authors: ['Josh Random', 'Janet Random'], volume: 2},
+		{id: 'ref02', title: 'Goodbye World', authors: ['Josh Random', 'Janet Random'], volume: 2, type: 'report'},
 	];
 
 	var output, rlOutput, rlErr;
@@ -141,7 +141,7 @@ describe('MEDLINE output - objects via callback', function() {
 		expect(_.find(rlOutput, {title: 'Hello World'})).to.deep.equal({
 			title: 'Hello World',
 			authors: ['Joe Random', 'John Random'],
-			type: 'report',
+			type: 'unknown',
 			volume: '1',
 		});
 
@@ -158,7 +158,7 @@ describe('MEDLINE output - objects via callback', function() {
 describe('MEDLINE output - array via callback', function() {
 	var refs = [
 		{id: 'ref01', title: 'Hello World', authors: ['Joe Random', 'John Random'], volume: 1},
-		{id: 'ref02', title: 'Goodbye World', authors: ['Josh Random', 'Janet Random'], volume: 2},
+		{id: 'ref02', title: 'Goodbye World', authors: ['Josh Random', 'Janet Random'], volume: 2, type: 'dictionary'},
 	];
 
 	var output, rlOutput, rlErr;
@@ -219,14 +219,14 @@ describe('MEDLINE output - array via callback', function() {
 		expect(_.find(rlOutput, {title: 'Hello World'})).to.deep.equal({
 			title: 'Hello World',
 			authors: ['Joe Random', 'John Random'],
-			type: 'report',
+			type: 'unknown',
 			volume: '1',
 		});
 
 		expect(_.find(rlOutput, {title: 'Goodbye World'})).to.deep.equal({
 			title: 'Goodbye World',
 			authors: ['Josh Random', 'Janet Random'],
-			type: 'report',
+			type: 'dictionary',
 			volume: '2',
 		});
 	});

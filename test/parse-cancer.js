@@ -3,7 +3,7 @@ var expect = require('chai').expect;
 var fs = require('fs');
 var rl = require('../index');
 
-describe('RIS parser - test #1', function() {
+describe('MEDLINE parser - test #1', function() {
 	var resErr;
 	var data = {};
 
