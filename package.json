@@ -1,11 +1,11 @@
 {
   "name": "reflib-ris",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Parser for MEDLINE / PubMed files",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hash-bang/Reflib-MEDLINE"
+    "url": "git+https://github.com/hash-bang/Reflib-MEDLINE.git"
   },
   "keywords": [
     "reflib",
@@ -28,5 +28,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.5.3"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }
