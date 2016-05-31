@@ -1,5 +1,5 @@
 {
-  "name": "reflib-ris",
+  "name": "reflib-medline",
   "version": "1.0.0",
   "description": "Parser for MEDLINE / PubMed files",
   "main": "index.js",
@@ -9,7 +9,6 @@
   },
   "keywords": [
     "reflib",
-    "ris",
     "references",
     "library",
     "medline",
