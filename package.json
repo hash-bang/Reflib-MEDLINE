@@ -22,11 +22,11 @@
   },
   "homepage": "https://github.com/hash-bang/Reflib-MEDLINE",
   "dependencies": {
-    "async-chainable": "^1.7.15"
+    "async-chainable": "^2.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^2.5.3"
+    "mocha": "^3.0.2"
   },
   "scripts": {
     "test": "mocha"
