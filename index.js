@@ -1,4 +1,6 @@
-var _ = require('lodash');
+var _ = require('lodash').mixin({
+	isStream: require('isstream'),
+});
 var async = require('async-chainable');
 var events = require('events');
 
@@ -57,9 +59,8 @@ var _typeTranslationsReverse = _(_typeTranslations)
 
 function parse(content) {
 	var emitter = new events.EventEmitter();
-	var library = [];
 
-	setTimeout(function() { // Perform parser in async so the function will return the emitter otherwise an error could be thrown before the emitter is ready
+	var parser = function(content) { // Perform parser in async so the function will return the emitter otherwise an error could be thrown before the emitter is ready
 		var ref = {};
 		var refField; // Currently appending ref field
 		(content + "\n").split("\n").forEach(function(line) {
@@ -90,7 +91,24 @@ function parse(content) {
 			}
 		});
 		emitter.emit('end');
-	});
+	};
+
+	if (_.isString(content)) {
+		setTimeout(function() { parser(content) });
+	} else if (_.isBuffer(content)) {
+		setTimeout(function() { parser(content.toString('utf-8')) });
+	} else if (_.isStream(content)) {
+		var buffer = '';
+		content
+			.on('data', function(data) {
+				buffer += data.toString('utf-8');
+			})
+			.on('end', function() {
+				parser(buffer);
+			});
+	} else {
+		throw new Error('Unknown item type to parse: ' + typeof content);
+	}
 
 	return emitter;
 };
