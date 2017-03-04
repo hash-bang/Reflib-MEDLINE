@@ -18,7 +18,7 @@ var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields
 	'PL  ': {reflib: 'address'},
 	'TI  ': {reflib: 'title'},
 	'VI  ': {reflib: 'volume'},
-	'OT  ': {reflib: 'tags', isArray: true},
+	'OT  ': {reflib: 'keywords', isArray: true},
 };
 
 var _fieldTranslationsReverse = _(_fieldTranslations) // Calculate the key/val lookup - this time with the key being the reflib key

@@ -1,6 +1,6 @@
 {
   "name": "reflib-medline",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Parser for MEDLINE / PubMed files",
   "main": "index.js",
   "repository": {
