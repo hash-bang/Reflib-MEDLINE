@@ -4,7 +4,7 @@ var _ = require('lodash').mixin({
 var async = require('async-chainable');
 var events = require('events');
 
-var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields
+var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields - See https://www.nlm.nih.gov/bsd/mms/medlineelements.html for details
 	'PMID': {reflib: 'recNo'},
 	'AB  ': {reflib: 'abstract'},
 	'AID ': {reflib: 'doi'},
