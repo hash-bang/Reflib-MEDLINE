@@ -9,6 +9,7 @@ var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields - See https
 	'AB  ': {reflib: 'abstract'},
 	'AID ': {reflib: 'doi'},
 	'FAU ': {reflib: 'authors', isArray: true},
+	'AD  ': {reflib: 'affiliation', isArray: true},
 	'DP  ': {reflib: 'date'},
 	'ISBN': {reflib: 'isbn'},
 	'JT  ': {reflib: 'journal'},
