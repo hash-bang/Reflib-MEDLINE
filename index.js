@@ -9,6 +9,7 @@ var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields - See https
 	'AB  ': {reflib: 'abstract'},
 	'AID ': {reflib: 'doi'},
 	'FAU ': {reflib: 'authors', isArray: true},
+	'AD  ': {reflib: 'affiliation', isArray: true},
 	'DP  ': {reflib: 'date'},
 	'ISBN': {reflib: 'isbn'},
 	'JT  ': {reflib: 'journal'},
@@ -81,7 +82,11 @@ function parse(content) {
 					refField = null;
 				}
 			} else if (refField && _.startsWith(line, '      ')) {
-				ref[refField.reflib] += ' ' + line.substr(6);
+				if (refField.isArray) {
+                                  	ref[refField.reflib][ref[refField.reflib].length-1] += ' ' + line.substr(6) 
+                                } else {
+					ref[refField.reflib] += ' ' + line.substr(6);
+				}
 			} else if (!line) {
 				if (!_.isEmpty(ref)) {
 					ref.type = ref.type && _typeTranslations[ref.type] ? _typeTranslations[ref.type] : 'unknown';
