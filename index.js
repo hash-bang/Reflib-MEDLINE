@@ -64,6 +64,7 @@ function parse(content) {
 	var parser = function(content) { // Perform parser in async so the function will return the emitter otherwise an error could be thrown before the emitter is ready
 		var ref = {};
 		var refField; // Currently appending ref field
+		content = content.replace(/\r\n/g, "\n"); // Normalise any Windows CRLF newlines to LFs.
 		(content + "\n").split("\n").forEach(function(line) {
 			var bits = /^(....)- (.*)$/.exec(line);
 			if (bits) {
