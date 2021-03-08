@@ -1,8 +1,6 @@
-var _ = require('lodash').mixin({
-	isStream: require('isstream'),
-});
 var async = require('async-chainable');
 var events = require('events');
+var stream = require('stream');
 
 var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields - See https://www.nlm.nih.gov/bsd/mms/medlineelements.html for details
 	'PMID': {reflib: 'recNo'},
@@ -22,15 +20,10 @@ var _fieldTranslations = { // Map of MEDLINE fields to RefLib fields - See https
 	'OT  ': {reflib: 'keywords', isArray: true},
 };
 
-var _fieldTranslationsReverse = _(_fieldTranslations) // Calculate the key/val lookup - this time with the key being the reflib key
-	.map(function(tran, id) {
-		tran.medline = id;
-		return tran;
-	})
-	.mapKeys(function(tran) {
-		return tran.reflib;
-	})
-	.value();
+var _fieldTranslationsReverse = Object.fromEntries(
+	Object.entries(_fieldTranslations) // Calculate the key/val lookup - this time with the key being the reflib key
+		.map(([key, props]) => [props.reflib, {...props, medline: key}])
+);
 
 // Lookup object of MEDLINE => RefLib types
 var _typeTranslations = {
@@ -46,17 +39,10 @@ var _typeTranslations = {
 	'VIDEO-AUDIO MEDIA': 'filmOrBroadcast',
 	'WEBCASTS': 'web',
 };
-var _typeTranslationsReverse = _(_typeTranslations)
-	.mapValues(function(trans, id) {
-		return {reflib: trans, medline: id};
-	})
-	.mapKeys(function(trans) {
-		return trans.reflib;
-	})
-	.mapValues(function(trans) {
-		return trans.medline;
-	})
-	.value();
+var _typeTranslationsReverse = Object.fromEntries(
+	Object.entries(_typeTranslations)
+		.map(([key, val]) => [val, key])
+)
 
 function parse(content) {
 	var emitter = new events.EventEmitter();
@@ -82,28 +68,26 @@ function parse(content) {
 				} else {
 					refField = null;
 				}
-			} else if (refField && _.startsWith(line, '      ')) {
+			} else if (refField && line.startsWith('      ')) {
 				if (refField.isArray) {
-                                  	ref[refField.reflib][ref[refField.reflib].length-1] += ' ' + line.substr(6) 
+					ref[refField.reflib][ref[refField.reflib].length-1] += ' ' + line.substr(6)
                                 } else {
 					ref[refField.reflib] += ' ' + line.substr(6);
 				}
-			} else if (!line) {
-				if (!_.isEmpty(ref)) {
-					ref.type = ref.type && _typeTranslations[ref.type] ? _typeTranslations[ref.type] : 'unknown';
-					emitter.emit('ref', ref);
-				}
+			} else if (!line && Object.keys(ref).length > 0) {
+				ref.type = ref.type && _typeTranslations[ref.type] ? _typeTranslations[ref.type] : 'unknown';
+				emitter.emit('ref', ref);
 				ref = {};
 			}
 		});
 		emitter.emit('end');
 	};
 
-	if (_.isString(content)) {
+	if (typeof content == 'string') {
 		setTimeout(function() { parser(content) });
-	} else if (_.isBuffer(content)) {
+	} else if (Buffer.isBuffer(content)) {
 		setTimeout(function() { parser(content.toString('utf-8')) });
-	} else if (_.isStream(content)) {
+	} else if (content instanceof stream.Stream) {
 		var buffer = '';
 		content
 			.on('data', function(data) {
@@ -123,16 +107,14 @@ function _pusher(stream, isLast, child, settings) {
 	var buffer = '';
 	if (child.type) child.type = _typeTranslationsReverse[child.type] || settings.defaultType;
 
-	_(child)
-		.omitBy(function(data, key) {
-			return !_fieldTranslationsReverse[key]; // Known translation?
-		})
-		.forEach(function(data, key) {
+	Object.entries(child)
+		.forEach(([key, data]) => {
+			if (!_fieldTranslationsReverse[key]) return // Known translation? - if not skip
 			var field = _fieldTranslationsReverse[key];
 			if (field.isArray) {
-				data.map(function(item) {
-					buffer += field.medline + '- ' + item + '\n';
-				});
+				data.map(item =>
+					buffer += field.medline + '- ' + item + '\n'
+				);
 			} else {
 				buffer += field.medline + '- ' + data + '\n';
 			}
@@ -142,11 +124,12 @@ function _pusher(stream, isLast, child, settings) {
 };
 
 function output(options) {
-	var settings = _.defaults(options, {
+	var settings = {
 		stream: null,
 		defaultType: 'journalArticle', // Assume this reference type if we are not provided with one
 		content: [],
-	});
+		...options,
+	};
 	async()
 		// Sanity checks {{{
 		.then(function(next) {
@@ -156,17 +139,17 @@ function output(options) {
 		// }}}
 		// References {{{
 		.then(function(next) {
-			if (_.isFunction(settings.content)) { // Callback
+			if (typeof settings.content == 'function') { // Callback
 				var batchNo = 0;
 				var fetcher = function() {
 					settings.content(function(err, data, isLast) {
 						if (err) return emitter.error(err);
-						if (_.isArray(data) && data.length > 0) { // Callback provided array
-							data.forEach(function(d, dIndex) {
-								_pusher(settings.stream, isLast && dIndex == data.length-1, d, settings);
-							});
+						if (Array.isArray(data) && data.length > 0) { // Callback provided array
+							data.forEach((d, dIndex) =>
+								_pusher(settings.stream, isLast && dIndex == data.length-1, d, settings)
+							);
 							setTimeout(fetcher);
-						} else if(!_.isArray(data) && _.isObject(data)) { // Callback provided single ref
+						} else if(!Array.isArray(data) && typeof data == 'object') { // Callback provided single ref
 							_pusher(settings.stream, isLast, data, settings);
 							setTimeout(fetcher);
 						} else { // End of stream
@@ -175,12 +158,12 @@ function output(options) {
 					}, batchNo++);
 				};
 				fetcher();
-			} else if (_.isArray(settings.content)) { // Array of refs
+			} else if (Array.isArray(settings.content)) { // Array of refs
 				settings.content.forEach(function(d, dIndex) {
 					_pusher(settings.stream, dIndex == settings.content.length -1, d, settings);
 				});
 				next();
-			} else if (_.isObject(settings.content)) { // Single ref
+			} else if (typeof settings.content == 'object') { // Single ref
 				_pusher(settings.stream, true, data, settings);
 				next();
 			}

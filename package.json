@@ -1,6 +1,6 @@
 {
   "name": "reflib-medline",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Parser for MEDLINE / PubMed files",
   "main": "index.js",
   "repository": {
@@ -22,13 +22,12 @@
   },
   "homepage": "https://github.com/hash-bang/Reflib-MEDLINE",
   "dependencies": {
-    "async-chainable": "^2.6.1",
-    "isstream": "^0.1.2",
-    "lodash": "^4.17.11"
+    "async-chainable": "^2.6.1"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^6.0.2"
+    "chai": "^4.3.3",
+    "lodash": "^4.17.21",
+    "mocha": "^8.3.1"
   },
   "scripts": {
     "test": "mocha"
